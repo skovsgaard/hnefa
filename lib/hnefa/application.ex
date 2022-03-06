@@ -18,7 +18,7 @@ defmodule Hnefa.Application do
       HnefaWeb.Endpoint,
       # Start a worker by calling: Hnefa.Worker.start_link(arg)
       # {Hnefa.Worker, arg}
-      Hnefa.Game.start_link()
+      Hnefa.Game
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
