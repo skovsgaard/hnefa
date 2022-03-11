@@ -40,8 +40,43 @@ defmodule Hnefa.Game do
     IO.puts("Moving to: ")
     new_position = board[y][x + 1] |> IO.inspect()
 
-    board = put_in(board, piece, :empty) |> put_in([y, x], piece)
+    if can_move?(piece, new_position) do
+      board = put_in(board, piece, :empty) |> put_in([y, x], piece)
+      {:reply, :ok, board}
+    else
+      {:reply, {:error, :invalid_move}, board}
+    end
+  end
 
-    {:reply, :ok, board}
+  # Internal functionality
+
+  defp can_move?(origin, destination) do
+    case origin do
+      :white ->
+        case destination do
+          :white -> false
+          :king -> false
+          :barred -> false
+          :black -> true
+          _ -> true
+        end
+      :king ->
+        case destination do
+          :white -> false
+          :king -> false
+          :barred -> false
+          :black -> true
+          _ -> true
+        end
+      :black ->
+        case destination do
+          :white -> true
+          :king -> true
+          :barred -> false
+          :black -> false
+          _ -> true
+        end
+      _ -> false
+    end
   end
 end
