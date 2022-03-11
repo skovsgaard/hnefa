@@ -1,6 +1,8 @@
 defmodule Hnefa.Game do
   use GenServer
 
+  alias Hnefa.Helpers.Matrix
+
   # Public API
 
   def start_link(_) do
@@ -16,7 +18,7 @@ defmodule Hnefa.Game do
       [:empty, :empty, :empty, :empty, :empty, :empty, :empty, :empty, :empty, :empty, :empty,],
       [:empty, :empty, :empty, :empty, :empty, :black, :empty, :empty, :empty, :empty, :empty,],
       [:barred, :empty, :empty, :black, :black, :black, :black, :black, :empty, :empty, :barred,],
-    ]
+    ] |> Matrix.from_list()
 
     GenServer.start_link(__MODULE__, board, name: __MODULE__)
   end
@@ -32,9 +34,13 @@ defmodule Hnefa.Game do
     {:ok, board}
   end
 
-  def handle_call({:move_right, {x, y}}, _from, board) when x < 12 and x >= 0 do
-    piece = board |> Enum.at(y) |> Enum.at(x) |> IO.inspect
-    piece_right = board |> Enum.at(y) |> Enum.at(x+1) |> IO.inspect
+  def handle_call({:move_right, {x, y}}, _from, board) when x < 12 do
+    IO.puts("Moving piece: ")
+    piece = board[y][x] |> IO.inspect()
+    IO.puts("Moving to: ")
+    new_position = board[y][x + 1] |> IO.inspect()
+
+    board = put_in(board, piece, :empty) |> put_in([y, x], piece)
 
     {:reply, :ok, board}
   end
