@@ -23,10 +23,13 @@ defmodule Hnefa.Game do
     GenServer.start_link(__MODULE__, board, name: __MODULE__)
   end
 
-  def move(:right, x, y), do: GenServer.call(__MODULE__, {:move_right, {x, y}})
-  def move(:left, x, y), do: GenServer.call(__MODULE__, {:move_left, {x, y}})
-  def move(:up, x, y), do: GenServer.call(__MODULE__, {:move_up, {x, y}})
-  def move(:down, x, y), do: GenServer.call(__MODULE__, {:move_down, {x, y}})
+  def move(:right, y, x), do: GenServer.call(__MODULE__, {:move_right, {y, x}})
+  def move(:left, y, x), do: GenServer.call(__MODULE__, {:move_left, {y, x}})
+  def move(:up, y, x), do: GenServer.call(__MODULE__, {:move_up, {y, x}})
+  def move(:down, y, x), do: GenServer.call(__MODULE__, {:move_down, {y, x}})
+
+  # Public API (temporary)
+  def get_board, do: GenServer.call(__MODULE__, :get_board)
 
   # Callbacks
 
@@ -34,15 +37,21 @@ defmodule Hnefa.Game do
     {:ok, board}
   end
 
-  def handle_call({:move_right, {x, y}}, _from, board) when x < 12 do
+  def handle_call(:get_board, _, board), do: {:reply, {:ok, board}, board}
+
+  def handle_call({:move_right, {y, x}}, _from, board) when x < 12 do
     IO.puts("Moving piece: ")
     piece = board[y][x] |> IO.inspect()
     IO.puts("Moving to: ")
     new_position = board[y][x + 1] |> IO.inspect()
 
     if can_move?(piece, new_position) do
-      board = put_in(board, piece, :empty) |> put_in([y, x], piece)
-      {:reply, :ok, board}
+      new_board = Map.update!(board, y, fn(row) ->
+        Map.update!(row, x, fn(_) -> :empty end)
+        |> Map.update!(x + 1, fn(_) -> piece end)
+      end)
+
+      {:reply, {:ok, new_board}, new_board}
     else
       {:reply, {:error, :invalid_move}, board}
     end

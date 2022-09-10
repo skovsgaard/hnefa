@@ -2,7 +2,7 @@ defmodule Hnefa.Helpers.Matrix do
   # Original work by Daniel Berkompas of LeadSimple
 
   @moduledoc """
-  Helpers for working with multidimensional lists, also called matrices.
+  Helpers for working with multidimensional lists or maps (or matrices).
   """
 
   @doc """
@@ -11,7 +11,7 @@ defmodule Hnefa.Helpers.Matrix do
   ## Example
 
       iex> list = [["x", "o", "x"]]
-      ...> Matrix.from_list(list)
+      ...> Hnefa.Helpers.Matrix.from_list(list)
       %{0 => %{0 => "x", 1 => "o", 2 => "x"}}
   """
   def from_list(list) when is_list(list) do
@@ -32,7 +32,7 @@ defmodule Hnefa.Helpers.Matrix do
   ## Example
 
       iex> matrix = %{0 => %{0 => "x", 1 => "o", 2 => "x"}}
-      ...> Matrix.to_list(matrix)
+      ...> Hnefa.Helpers.Matrix.to_list(matrix)
       [["x", "o", "x"]]
   """
   def to_list(matrix) when is_map(matrix) do
