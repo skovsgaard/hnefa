@@ -39,22 +39,20 @@ defmodule Hnefa.Game do
 
   def handle_call(:get_board, _, board), do: {:reply, {:ok, board}, board}
 
-  def handle_call({:move_right, {y, x}}, _from, board) when x < 12 do
-    IO.puts("Moving piece: ")
-    piece = board[y][x] |> IO.inspect()
-    IO.puts("Moving to: ")
-    new_position = board[y][x + 1] |> IO.inspect()
+  def handle_call({:move_down, {y, x}}, _from, board) when y < 11 do
+    do_move(:down, {x, y}, board)
+  end
 
-    if can_move?(piece, new_position) do
-      new_board = Map.update!(board, y, fn(row) ->
-        Map.update!(row, x, fn(_) -> :empty end)
-        |> Map.update!(x + 1, fn(_) -> piece end)
-      end)
+  def handle_call({:move_right, {y, x}}, _from, board) when x < 11 do
+    do_move(:right, {x, y}, board)
+  end
 
-      {:reply, {:ok, new_board}, new_board}
-    else
-      {:reply, {:error, :invalid_move}, board}
-    end
+  def handle_call({:move_left, {y, x}}, _from, board) when x >= 0 do
+    do_move(:left, {x, y}, board)
+  end
+
+  def handle_call({:move_up, {y, x}}, _from, board) when y >= 0 do
+    do_move(:up, {x, y}, board)
   end
 
   # Internal functionality
@@ -86,6 +84,51 @@ defmodule Hnefa.Game do
           _ -> true
         end
       _ -> false
+    end
+  end
+
+  def do_move(direction, {x, y}, board) do
+    piece = board[y][x]
+    new_position =
+      case direction do
+        :right -> board[y][x + 1]
+        :left -> board[y][x - 1]
+        :up -> board[y - 1][x]
+        :down -> board[y + 1][x]
+      end
+
+    if can_move?(piece, new_position) do
+      new_board =
+        case direction do
+          :right ->
+            Map.update!(board, y, fn(row) ->
+              Map.update!(row, x, fn(_) -> :empty end)
+              |> Map.update!(x + 1, fn(_) -> piece end)
+            end)
+          :left ->
+            Map.update!(board, y, fn(row) ->
+              Map.update!(row, x, fn(_) -> :empty end)
+              |> Map.update!(x - 1, fn(_) -> piece end)
+            end)
+          :up ->
+            Map.update!(board, y, fn(row) ->
+              Map.update!(row, x, fn(_) -> :empty end)
+            end)
+            |> Map.update!(y - 1, fn(row) ->
+              Map.update!(row, x, fn(_) -> piece end)
+            end)
+          :down ->
+            Map.update!(board, y, fn(row) ->
+              Map.update!(row, x, fn(_) -> :empty end)
+            end)
+            |> Map.update!(y + 1, fn(row) ->
+              Map.update!(row, x, fn(_) -> piece end)
+            end)
+        end
+
+      {:reply, {:ok, new_board}, new_board}
+    else
+      {:reply, {:error, :invalid_move}, board}
     end
   end
 end
