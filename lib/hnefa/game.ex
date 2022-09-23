@@ -5,6 +5,7 @@ defmodule Hnefa.Game do
 
   # Public API
 
+  @spec start_link(any) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(_) do
     board = [
       [:barred, :empty, :empty, :black, :black, :black, :black, :black, :empty, :empty, :barred,],
@@ -23,12 +24,13 @@ defmodule Hnefa.Game do
     GenServer.start_link(__MODULE__, board, name: __MODULE__)
   end
 
+  @spec move(:down | :left | :right | :up, integer, integer) :: {:ok, Matrix.t()} | {:error, :invalid_move}
   def move(:right, y, x), do: GenServer.call(__MODULE__, {:move_right, {y, x}})
   def move(:left, y, x), do: GenServer.call(__MODULE__, {:move_left, {y, x}})
   def move(:up, y, x), do: GenServer.call(__MODULE__, {:move_up, {y, x}})
   def move(:down, y, x), do: GenServer.call(__MODULE__, {:move_down, {y, x}})
 
-  # Public API (temporary)
+  @spec get_board :: Matrix.t
   def get_board, do: GenServer.call(__MODULE__, :get_board)
 
   # Callbacks
@@ -57,6 +59,7 @@ defmodule Hnefa.Game do
 
   # Internal functionality
 
+  @spec can_move?(atom, atom) :: boolean
   defp can_move?(origin, destination) do
     case origin do
       :white ->
@@ -87,6 +90,7 @@ defmodule Hnefa.Game do
     end
   end
 
+  @spec do_move(atom, {integer, integer}, Matrix.t) :: {:reply, {:ok, Matrix.t}, Matrix.t}
   def do_move(direction, {x, y}, board) do
     piece = board[y][x]
     new_position =

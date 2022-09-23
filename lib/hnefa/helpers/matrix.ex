@@ -5,6 +5,13 @@ defmodule Hnefa.Helpers.Matrix do
   Helpers for working with multidimensional lists or maps (or matrices).
   """
 
+  @typedoc """
+  A 2-dimensional map representing a matrix.
+  """
+
+  @type t :: map
+
+  @spec from_list(list) :: t
   @doc """
   Converts a multidimensional list into a zero-indexed map.
 
